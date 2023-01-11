@@ -1,0 +1,10 @@
+{% extends "rest_framework/base.html" %}
+{% block bootstrap_theme %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'bootstrap-5.2.3/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/bootstrap.min.css" %}"/>
+{% endblock %}
+
+{% block navbar %}
+    {% include "inc/_navbar.html" %}
+{% endblock %}

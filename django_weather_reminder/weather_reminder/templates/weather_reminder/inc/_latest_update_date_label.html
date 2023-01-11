@@ -1,0 +1,13 @@
+{% load get_latest_update_date %}
+{% get_latest_update_date as latest_update_date %}
+<li class="nav-item">
+    <div class="container-fluid">
+        {% if latest_update_date %}
+            <div class="navbar-text">
+                <strong class="text-center" style="color:#0d6efd">
+                    Weather forecast updated at {{ latest_update_date|date:"D d.m.Y G:i:s" }} UTC
+                </strong>
+            </div>
+        {% endif %}
+    </div>
+</li>

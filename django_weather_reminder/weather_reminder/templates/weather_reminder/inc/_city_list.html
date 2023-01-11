@@ -1,0 +1,26 @@
+{% for city in object_list %}
+    <div class="accordion" id="accordionCity{{ forloop.counter }}">
+        <div class="accordion-item">
+            <div class="accordion-header" id="headingCity{{ forloop.counter }}">
+                <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseCity{{ forloop.counter }}"
+                        aria-expanded="true"
+                        aria-controls="collapseCity{{ forloop.counter }}"
+                >
+                    <strong> {{ city.name }}, {{ city.country_code }} </strong>
+                </button>
+            </div>
+            <div
+                    id="collapseCity{{ forloop.counter }}"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="headingOne"
+                    data-bs-parent="#accordionCity{{ forloop.counter }}"
+            >
+                {% include "weather_reminder/inc/_city_forecasts.html" %}
+            </div>
+        </div>
+    </div>
+{% endfor %}

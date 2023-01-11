@@ -1,0 +1,41 @@
+{% load get_field_with_description %}
+<div class="accordion-body">
+    {% for date in city.weather_forecasts.all %}
+        <div class="accordion" id="accordionData{{ city.id }}{{ forloop.counter }}">
+            <div class="accordion-item">
+                <div class="accordion-header" id="headingData{{ city.id }}{{ forloop.counter }}">
+                    <button
+                            class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapseData{{ city.id }}{{ forloop.counter }}"
+                            aria-expanded="true"
+                            aria-controls="collapseData{{ city.id }}{{ forloop.counter }}"
+                    >
+                    <span>
+                        {{ date.local_datetime|date:"D d.m.Y G:i:s" }} -
+                        {{ date.weather_description }}.
+                        Temp. feels like: {{ date.temperature_feels_like }} &#8451
+                    </span>
+                    </button>
+                </div>
+                <div
+                        id="collapseData{{ city.id }}{{ forloop.counter }}"
+                        class="accordion-collapse collapse"
+                        aria-labelledby="headingOne"
+                        data-bs-parent="#accordionData{{ city.id }}{{ forloop.counter }}"
+                >
+                    <div class="accordion-body">
+                        {% for field in display_forecast_fields %}
+                            <div class="forecast_row">
+                                {% get_field_with_description date field as row %}
+                                <span class="forecast_description">{{ row.description }}:</span>
+                                <span class="forecast_value">{{ row.value }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {%  endfor %}
+</div>
