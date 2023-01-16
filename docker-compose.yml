@@ -20,6 +20,7 @@ services:
       - PG_DATABASE_ADDRESS=db
       - REDIS_ADDRESS=broker
       - IS_DOCKER=true
+      - FILL_DATABASE=${FILL_DATABASE}
     volumes:
       - "staticfiles:/Weather-reminder/django_weather_reminder/static"
     ports:
@@ -59,27 +60,6 @@ services:
     volumes:
       - "broker-data:/data"
     restart: "always"
-
-  # this service runs once to fill the database with demo data
-  # it won't run unless you specify the "fill" profile
-  # docker compose --profile fill up -d
-  fill:
-    image: leechlab/weather-reminder:latest
-    profiles: ["fill"]
-    working_dir: /Weather-reminder
-    env_file:
-      - .env
-    environment:
-      - PG_DATABASE_ADDRESS=db
-      - REDIS_ADDRESS=broker
-      - IS_DOCKER=true
-    command: python /Weather-reminder/django_weather_reminder/manage.py add_demo_data
-    depends_on:
-      web:
-        condition: service_healthy
-    networks:
-      - back-tier
-    restart: "no"
 
 volumes:
   staticfiles:

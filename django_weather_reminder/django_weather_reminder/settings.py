@@ -226,6 +226,6 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
 
-CELERY_BROKER_URL = f'redis://{os.environ.get("REDIS_CREDENTIALS")}{os.environ.get("REDIS_ADDRESS")}'
+CELERY_BROKER_URL = f'redis://{os.environ.get("REDIS_CREDENTIALS", default="")}{os.environ.get("REDIS_ADDRESS")}'
 
 OPENWEATHER_API_KEY = os.environ.get('OPENWEATHER_API_KEY')
