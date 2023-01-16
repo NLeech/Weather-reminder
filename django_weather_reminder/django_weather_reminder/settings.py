@@ -13,8 +13,6 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os.path
 from pathlib import Path
 
-IS_RAILWAY = 'RAILWAY_ENVIRONMENT' in os.environ
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -22,25 +20,33 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-gv)p5zgw9ndgbkmlvvh99@nn=%56om_q)o*g-62&4dp%@nb9q='
-if 'SECRET_KEY' in os.environ:
-    SECRET_KEY = os.environ['SECRET_KEY']
+IS_DOCKER = "IS_DOCKER" in os.environ
+
+if not IS_DOCKER:
+    import environ
+    env = environ.Env()
+    env.read_env(env.str('ENV_PATH', str(BASE_DIR.parent) + '/.env'))
+
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
+
+SECRET_KEY = os.environ.get('SECRET_KEY')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
-if not IS_RAILWAY:
+if not IS_DOCKER:
     DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
-railway_host = os.environ.get('RAILWAY_STATIC_URL')
-if railway_host is not None:
-    ALLOWED_HOSTS.append(railway_host)
-    CSRF_TRUSTED_ORIGINS = ['https://' + railway_host]
+PUBLIC_URLS = os.environ.get('APPLICATION_URLS')
+if PUBLIC_URLS:
+    ALLOWED_HOSTS.extend(PUBLIC_URLS.split(','))
 
 INTERNAL_IPS = [
     "127.0.0.1",
+    'localhost',
 ]
 
 # Application definition
@@ -70,6 +76,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'weather_reminder.middleware.HealthCheckMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -100,6 +107,17 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'django_weather_reminder.wsgi.application'
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('PG_DATABASE'),
+        'USER': os.environ.get('PG_USER'),
+        'PASSWORD': os.environ.get('PG_PASSWD'),
+        'HOST': os.environ.get('PG_DATABASE_ADDRESS'),
+        'PORT': os.environ.get('PG_DATABASE_PORT'),
+    }
+}
 
 AUTH_USER_MODEL = 'authentication.User'
 LOGIN_REDIRECT_URL = '/'
@@ -169,6 +187,12 @@ REST_FRAMEWORK = {
     ],
 }
 
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST = os.environ.get('EMAIL_HOST')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
@@ -180,6 +204,16 @@ ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_LOGOUT_ON_GET = True
 
+# allauth provider specific settings
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': os.environ.get('GOOGLE_CLIENT_ID'),
+            'secret': os.environ.get('GOOGLE_SECRET'),
+            'key': ''
+        }
+    }
+}
 
 OPENWEATHER_GEOCODING_URL = 'https://api.openweathermap.org/geo/1.0/'
 OPENWEATHER_FORECAST_URL = 'https://api.openweathermap.org/data/2.5/forecast/'
@@ -192,44 +226,6 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
 
-if IS_RAILWAY:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': os.environ.get('PGDATABASE'),
-            'USER': os.environ.get('PGUSER'),
-            'PASSWORD': os.environ.get('PGPASSWORD'),
-            'HOST': os.environ.get('PGHOST'),
-            'PORT': os.environ.get('PGPORT'),
-        }
-    }
+CELERY_BROKER_URL = f'redis://{os.environ.get("REDIS_CREDENTIALS", default="")}{os.environ.get("REDIS_ADDRESS")}'
 
-    CELERY_BROKER_URL = os.environ.get('REDIS_URL')
-
-    EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
-    EMAIL_HOST = os.environ.get('EMAIL_HOST')
-    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
-
-    # allauth provider specific settings
-    SOCIALACCOUNT_PROVIDERS = {
-        'google': {
-            'APP': {
-                'client_id': os.environ.get('GOOGLE_CLIENT_ID'),
-                'secret': os.environ.get('GOOGLE_SECRET'),
-                'key': ''
-            }
-        }
-    }
-
-    OPENWEATHER_API_KEY = os.environ.get('OPENWEATHER_API_KEY')
-
-else:
-    try:
-        from .local_settings import *
-    except ImportError as e:
-        print("Local settings are not found!")
-        print("Please see README for the local settings file.")
-        raise
-
+OPENWEATHER_API_KEY = os.environ.get('OPENWEATHER_API_KEY')

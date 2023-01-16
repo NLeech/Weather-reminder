@@ -85,6 +85,12 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        if City.objects.count() > 0:
+            # don't run on a non-empty database
+            return
+
+        print("The procedure takes several minutes, please wait!")
+
         user = self.add_demo_user()
 
         for city_data in cities:
@@ -92,3 +98,5 @@ class Command(BaseCommand):
             Subscription.objects.create(user=user, city=city, notification_frequency=1)
 
         WeatherInterface().update_weather_forecast()
+
+        print("Data was generated successfully!")
