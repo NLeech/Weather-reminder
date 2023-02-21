@@ -23,11 +23,11 @@ services:
     volumes:
       - "staticfiles:/Weather-reminder/django_weather_reminder/static"
     ports:
-      - "80:80"
+      - "8083:80"
     networks:
       - front-tier
       - back-tier
-    restart: "always"
+    restart: "unless-stopped"
 
   db:
     build: postgres
@@ -44,7 +44,7 @@ services:
       start_period: 15s
     networks:
       - back-tier
-    restart: "always"
+    restart: "unless-stopped"
 
   broker:
     image: redis:7.0-alpine
@@ -58,7 +58,7 @@ services:
       - back-tier
     volumes:
       - "broker-data:/data"
-    restart: "always"
+    restart: "unless-stopped"
 
   # this service runs once to fill the database with demo data
   # it won't run unless you specify the "fill" profile

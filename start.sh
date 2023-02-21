@@ -12,7 +12,7 @@ celery -A django_weather_reminder beat -l INFO --scheduler django_celery_beat.sc
 #--detach
 
 echo "Starting celery worker"
-celery -A django_weather_reminder worker -l INFO -c 2 &
+celery -A django_weather_reminder worker -l INFO -c 1 &
 #--detach
 
-python3 manage.py runserver 0.0.0.0:80
+gunicorn --timeout 600 --bind 0.0.0.0:80 -w 1 django_weather_reminder.wsgi
