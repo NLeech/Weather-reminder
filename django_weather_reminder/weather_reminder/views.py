@@ -77,7 +77,7 @@ class APIRoot(rest_views.APIView):
     """
     API for subscriptions management.
     For some API calls, you need to obtain an authentication token from
-    http://weather-reminder-production-101664.up.railway.app/api/v1/token/
+    http://weather-reminder.cv-pf.pp.ua/api/v1/token/
     and add it to your query header as: 'HTTP_AUTHORIZATION': 'Bearer ' + your_token.
 
     """

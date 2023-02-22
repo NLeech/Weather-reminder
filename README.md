@@ -157,7 +157,7 @@ Run containers:
 Optionally, you can fill the database with demo data for the first container run. 
 For this run your container with the command:
 
-    docker compose --profile fill up -d
+    FILL_DATABASE="fill" docker compose up
  
 Then go to [localhost](localhost)
 
