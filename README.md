@@ -152,7 +152,7 @@ Build images:
 
 Run containers:
 
-    docker compose up -d
+    docker compose up
 
 Optionally, you can fill the database with demo data for the first container run. 
 For this run your container with the command:
